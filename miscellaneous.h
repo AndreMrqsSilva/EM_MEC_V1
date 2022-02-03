@@ -53,21 +53,65 @@
 #include <cmath>
 #include <complex>
 #include <vector>
+#include <QFileDialog>
+#include <QFile>
+#include <QTextStream>
+#include <QString>
 
 #define M_2PI 6.28318530718
 #define U_AIR 1.25663706212E-6
 #define RHO_COPPER20C 1.68E-8
 #define RHO_ALUMINIUM20C 2.65E-8
+#define RHO_COPPER100C 2.22E-8
+#define RHO_ALUMINIUM100C 3.48E-8
+#define DENSITY_COPPER 8.96E3
+#define DENSITY_ALUMINIUM 2.7E3
 
 enum ReluctanceElementType { RET_notDefined, RET_air, RET_coreLinear, RET_coreNonLinear, RET_coil, RET_magnet };
 
 enum ReluctanceElementGeometry { REG_notDefined, REG_rectangle, REG_trapezoid, REG_sector };
 
+enum MEC_MMFSourceOrientation { MMFSO_notDefined, MMFSO_tangential, MMFSO_radial };
+
 enum NonlinearMaterialType { SILICONSTEEL_M250_50A };
+
+double round_SuperLUPrecision(double v);
+
+void linsysToCsv(std::vector<std::vector<double> > A, std::vector<double> B);
+void DataToCsv(std::vector<std::vector<double> > data);
 
 double calculator_resistance(double length, double resistivity, double area);
 
 double calculator_inductance(double length, double height, double width, double permeability);
+
+struct MEC_ElementGeometry
+{
+    MEC_ElementGeometry();
+
+    void setGeometryRectangle(double h, double w, double l);
+    void setGeometryTrapezoid(double h, double bW, double tW, double l);
+    void setGeometrySector(double rT, double rB, double aT, double aB, double l);
+    void setPosition(double tX, double rY);
+    void setTangentialPosition(double theta);
+    void setTangentialPositionWithOffset(double offset);
+
+    ReluctanceElementGeometry shape;
+    double position_tX; // cylindrical: tangential distance (radians) or cartesian: abscissa (meters)
+    double position_rY; // cylindrical: radial distance (meters) or cartesian: ordinate (meters)
+    double height; // element height
+    double width; // element average width
+    double widthBottom; // element bottom width
+    double widthTop; // element top width
+    double radiusBottom; // element bottom radius
+    double radiusTop; // element top radius
+    double arcBottom; // element bottom arc
+    double arcTop; // element top arc
+    double length; // element length (z-axis wise)
+    double crossSectionalArea; // element z-axis wise cross sectional area
+    double crossSectionalAreaTangential; // element tangential or x-axis wise cross sectional area
+    double crossSectionalAreaRadial; // element radial or y-axis wise cross sectional area
+    double volume; // element volume
+};
 
 struct ReportDataSolver
 {
@@ -76,6 +120,7 @@ struct ReportDataSolver
     double elapsedTime;
     double variance;
     bool solverError;
+    std::vector<double> data;
 
     double currentTime;
     unsigned currentStep;
@@ -91,13 +136,17 @@ public:
     double getSaturatedReluctivity() { return saturatedReluctivity; }
     double getAirReluctivity() { return 795775.0; }
     double getReluctivity(double B);
+    double getReluctivityDerivative(double B);
     double getIronLosses(double B, double f, double volume);
+    double getIronLosses(double B_prev, double B_curr, double timeStep, double volume);
+    double getDensity() { return density; }
 private:
     NonlinearMaterialType type;
     double a, b, c, d; // v-B fiting function coefficients
     double k_h, k_c, k_e; // Bertotti Iron losses coefficients: (h) - hysteresis, (c) - eddy current losses, and (e) - excess losses
     double linearReluctivity;
     double saturatedReluctivity;
+    double density;
 };
 
 #endif // MISCELLANEOUS_H
