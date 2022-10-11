@@ -1,6 +1,21 @@
 # EM_MEC_V1
-Electric Machines - Magnetic Equivalent Circuit
 
-This is a Electric Machine simulation tool based on magnetic equivalent circuit or reluctance network.
+Electric Machines - Magnetic Equivalent Circuit (Version 1)
 
-Currently it is possible to simulate static machines (transformers), induction machines, and synchronous reluctance machines through sinusoidal AC magnetostatics analysis, and any magnetic device through magnetodynamics (time-step) analysis. Electric circuit components supported: impedances (AC magnetostatics only), coils, inductors, resitances, voltage sources, current sources.
+This is an Electric Machine Simulation Tool based on the Magnetic Equivalent Circuit or Reluctance Network.
+
+Currently it is possible to perform both:
+  -> time-harmonic (AC-magnetostatics) magnetic field analysis;
+  -> time-step (transient) magnetic field analysis.
+
+Electric circuit components supported:
+  -> coil (electric circuit/MEC linking component through back-EMF source);
+  -> inductor;
+  -> resitance;
+  -> capacitor;
+  -> voltage source;
+  -> current source.
+
+In the example.h/.cpp files you will find several examples of electric machine simulation applications, comprising transformers, synchronous reluctance machine, and synchronous permanent magnet machine.
+
+For any topic related informations please contact me (ams.sete@gmail.com)
